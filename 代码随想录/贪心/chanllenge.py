@@ -619,3 +619,88 @@ class Solution:
         # for i in range(0, n - k + 1):
         #     res = max(res, sum(nums[i:i + k]) / k)    # 复杂度: O(n * k)
         # return res
+
+    def majorityElement(self, nums: List[int]) -> int:
+        """ 169.多数元素 \n
+            滴滴人脸金融一面. 有点拉, 想成了只出现一次[异或] """
+        ## 推荐解法
+        # res = 0
+        # count = 0
+        # for n in nums:
+        #     if count == 0:
+        #         res = n
+        #     count += (1 if n == res else -1)
+        # return res
+
+        ## 面试官提醒
+        res = [nums.pop(0), 1]      # [结果, 次数]
+        for n in nums:
+            if n == res[0]:
+                res[1] += 1
+            else:
+                res[1] -= 1
+            if res[1] == 0:
+                res = [n, 1]
+        return res[0]
+    
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        """ 15.三数之和 \n
+            拼多多二面 当时用回溯做的, 临场修改2次, 面试官有点猛 """
+        ## 本题不适合回溯, 是双指针
+        res = []
+        nums.sort()
+        for i in range(len(nums) - 2):
+            if i > 0 and nums[i - 1] == nums[i]:
+                continue
+            start, end = i + 1, len(nums) - 1
+            while start < end:
+                _tmp = [nums[i], nums[start], nums[end]]
+                if sum(_tmp) == 0:
+                    res.append(_tmp[:])
+                    while start < end and nums[start] == nums[start + 1]:
+                        start += 1
+                    start += 1
+                    while start < end and nums[end] == nums[end - 1]:
+                        end -= 1
+                    end -= 1
+                elif sum(_tmp) < 0:
+                    start += 1
+                else:
+                    end -= 1
+        return res
+
+    def func(self, A, B, P):
+        """
+        文远知行感知二面. 点到直线的距离, 写出了标准解法, 又让写向量解法
+        面试官给的参考链接哈哈:https://blog.csdn.net/tracing/article/details/46563383
+        """
+        ## 向量解法
+        import numpy as np
+
+        # A = np.array(A)
+        # B = np.array(B)
+        # P = np.array(P)
+
+        # a = P - A       # 向量a, AP方向直线
+        # b = B - A       # 向量b, AB方向直线
+
+        # b_norm_sq = np.dot(b, b)        # 向量b模长的平方
+        # c = np.dot(a, b) * b / b_norm_sq
+        # e = a - c
+        # return np.linalg.norm(e)
+
+        ## 自己实现
+        A = np.array(A)
+        B = np.array(B)
+        P = np.array(P)
+
+        a_vec = P - A
+        b_vec = B - A
+        c_vec = np.dot(a_vec, b_vec) * b_vec / np.dot(b_vec, b_vec)
+        e_vec = a_vec - c_vec
+        return np.linalg.norm(e_vec)    # 默认L2范数, 即向量模长
+
+if __name__ == '__main__':
+    sl = Solution()
+    
+    print(sl.func([0, 0], [1, 0], [1, 1]))

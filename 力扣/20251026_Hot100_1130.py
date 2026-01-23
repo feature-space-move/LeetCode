@@ -524,10 +524,360 @@ class Solution:
             v = dfs(s, t)
             res.append(v)
         return res
+    
+    ## --- 01.13 继续 ---
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        """ 1.两数之和 """
+        for i in range(len(nums)):
+            if target - nums[i] in nums[i + 1:]:
+                return [i, nums.index(target - nums[i], i + 1)]
+            
+    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+        """ 49.字母异位词分组 """
+        from collections import defaultdict
+
+        res = defaultdict(list)
+        for s in strs:
+            k = ''.join(sorted(s))
+            res[k].append(s)
+        return list(res.values())
+    
+    def longestConsecutive(self, nums: List[int]) -> int:
+        """ 128.最长连续序列 """
+        nums = set(nums)
+        res = 0
+        for n in nums:
+            if n - 1 not in nums:
+                _len = 1
+                while n + 1 in nums:
+                    _len += 1
+                    n += 1
+                res = max(res, _len)
+        return res
+    
+    def moveZeroes(self, nums: List[int]) -> None:
+        """
+        283.移动零 \n
+        Do not return anything, modify nums in-place instead.
+        """
+        ## 移动非零元素. 若移动零元素不好做
+        ind = 0     # 指定非零元素索引
+        for i in range(len(nums)):
+            if nums[i] != 0:
+                nums[ind] = nums[i]
+                ind += 1
+        for i in range(ind, len(nums)):
+            nums[i] = 0
+
+    def maxArea(self, height: List[int]) -> int:
+        """ 11.盛最多水的容器 """
+        ## 关键是寻找最大容器的过程: 宽度在减小，只有换掉“短板”才可能获得更大的面积。
+        i, j = 0, len(height) - 1
+        maxArea = abs(i - j) * min(height[i], height[j])
+        while i < j:
+            if height[i] < height[j]:
+                i += 1
+            else:
+                j -= 1
+            area = abs(i - j) * min(height[i], height[j])
+            maxArea = max(maxArea, area)
+        return area
+    
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        """ 15.三数之和 """
+        ## 双指针 Tip:(这题用回溯不太行)
+        ## 还是不会呀你
+        # res = []
+        # nums.sort()
+        # for i in range(len(nums) - 2):
+        #     if i > 0 and nums[i - 1] == nums[i]:
+        #         continue
+        #     l, r = i + 1, len(nums) - 1
+        #     while l < r:
+        #         _tmp = [nums[i], nums[l], nums[r]]
+        #         _sum = sum(_tmp)
+        #         if _sum == 0:
+        #             res.append(_tmp[:])
+        #             while l < r and nums[l] == nums[l + 1]:
+        #                 l += 1
+        #             l += 1
+        #             while l < r and nums[r - 1] == nums[r]:
+        #                 r -= 1
+        #             r -= 1
+        #         elif _sum < 0:
+        #             l += 1
+        #         else:
+        #             r -= 1
+        # return res
+
+        ## Again
+        res = []
+        nums.sort()
+        for i in range(len(nums) - 2):
+            if i > 0 and nums[i - 1] == nums[i]:
+                continue
+            l, r = i + 1, len(nums) - 1
+            while l < r:
+                _tmp = [nums[i], nums[l], nums[r]]
+                _sum = sum(_tmp)
+                if _sum == 0:
+                    res.append(_tmp[:])
+                    while l < r and nums[l] == nums[l + 1]:
+                        l += 1
+                    l += 1
+                    while l < r and nums[r] == nums[r - 1]:
+                        r -= 1
+                    r -= 1
+                elif _sum < 0:
+                    l += 1
+                else:
+                    r -= 1
+        return res
+    
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        """ 3.无重复字符的最长子串 \n
+            要求连续 """
+        ## 滑窗/双指针
+        maxLength = 0
+        for i in range(len(s)):
+            seen = set()
+            for j in range(i, len(s)):
+                if s[j] in seen:
+                    break
+                seen.add(s[j])
+            maxLength = max(maxLength, len(seen))
+        return maxLength
+    
+    def findAnagrams(self, s: str, p: str) -> List[int]:
+        """ 438.找到字符串中所有字母异位词 """
+        ## 滑窗, 也不是那么简单
+        res = []
+        m = len(s)
+        n = len(p)
+        if m < n:
+            return res
+        
+        s_cts = [0] * 26
+        p_cts = [0] * 26
+        for i in range(n):
+            s_cts[ord(s[i]) - ord('a')] += 1
+            p_cts[ord(p[i]) - ord('a')] += 1
+        if s_cts == p_cts:      # ?
+            res.append(0)
+
+        for i in range(n, m):
+            s_cts[ord(s[i]) - ord('a')] += 1
+            s_cts[ord(s[i - n]) - ord('a')] -= 1
+            if s_cts == p_cts:
+                res.append(i - n + 1)
+        return res
+    
+    def subarraySum(self, nums: List[int], k: int) -> int:
+        """ 560.和为K的子数组 """
+        ## 怎么出了个前缀和: 比如截止到索引j和为prefixSumA, 截止到i和为prefixSumB, 若prefixSumB-prefixSumA==k, 就找到了一个结果j
+        from collections import defaultdict
+        prefixSums = defaultdict(int)
+        res = 0
+        
+        prefixSum = 0
+        prefixSums[0] = 1
+        for i in range(len(nums)):
+            prefixSum += nums[i]
+            res += prefixSums[prefixSum - k]
+            prefixSums[prefixSum] += 1
+        return res
+
+    def maxSubArray(self, nums: List[int]) -> int:
+        """ 53.最大子数组和 """
+        n = len(nums)
+        dp = [0] * n
+        dp[0] = nums[0]
+        for i in range(1, n):
+            dp[i] = max(nums[i], dp[i - 1] + nums[i])
+        return max(dp)
+    
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        """ 56.合并区间 """
+        ## 回首答案, 简单优雅
+        intervals.sort(key=lambda x: x[0])
+        res = [intervals[0]]
+        for inter in intervals[1:]:
+            if res[-1][-1] < inter[0]:
+                res.append(inter)
+            else:
+                res[-1][-1] = max(res[-1][-1], inter[-1])
+        return res
+
+    def rotate(self, nums: List[int], k: int) -> None:
+        """
+        189.轮转数组 \n
+        Do not return anything, modify nums in-place instead.
+        """
+        def rev(i, j):
+            while i < j:
+                nums[i], nums[j] = nums[j], nums[i]
+                i += 1
+                j -= 1
+        
+        n = len(nums)
+        k %= n
+        rev(0, n - 1)
+        rev(0, k - 1)
+        rev(k, n - 1)
+
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        """ 238.除了自身以外数组的乘积 """
+        ## 正着一遍 倒着一遍
+        n = len(nums)
+        res = [0] * n
+
+        tmp = 1
+        for i in range(n):
+            res[i] = tmp
+            tmp *= nums[i]
+        tmp = 1
+        for i in range(n - 1, -1, -1):
+            res[i] *= tmp
+            tmp *= nums[i]
+        
+        return res
+    
+    def setZeroes(self, matrix: List[List[int]]) -> None:
+        """
+        73.矩阵置零 \n
+        Do not return anything, modify matrix in-place instead.
+        """
+        rows = len(matrix)
+        cols = len(matrix[0])
+        zeroInds = []
+        for i in range(rows):
+            for j in range(cols):
+                if matrix[i][j] == 0:
+                    zeroInds.append([i, j])
+        for tmp in zeroInds:
+            rowInd, colInd = tmp
+            matrix[rowInd][:] = [0] * cols
+            for i in range(rows):
+                matrix[i][colInd] = 0
+        
+    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
+        """ 54.螺旋矩阵 """
+        l, r = 0, len(matrix[0]) - 1
+        t, b = 0, len(matrix) - 1
+        res = []
+        while True:
+            for i in range(l, r + 1):
+                res.append(matrix[t][i])
+            t += 1
+            if t > b:
+                break
+            
+            for i in range(t, b + 1):
+                res.append(matrix[i][r])
+            r -= 1
+            if r < l:
+                break
+
+            for i in range(r, l - 1, -1):
+                res.append(matrix[b][i])
+            b -= 1
+            if b < t:
+                break
+
+            for i in range(b, t - 1, -1):
+                res.append(matrix[i][l])
+            l += 1
+            if l > r:
+                break
+        return res
+    
+    def rotate(self, matrix: List[List[int]]) -> None:
+        """
+        48.旋转图像 \n
+        Do not return anything, modify matrix in-place instead.
+        """
+        ## 转置 + 行反转
+        # for i in range(len(matrix)):
+        #     for j in range(i):
+        #         matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+        # for i in range(len(matrix)):
+        #     matrix[i][:] = matrix[i][::-1]
+
+        ## 更极致的空间复杂度
+        n = len(matrix)
+        for i in range(n):
+            for j in range(i):
+                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+        for i in range(n):
+            l, r = 0, len(matrix[i])
+            while l < r:
+                matrix[i][l], matrix[i][r] = matrix[i][r], matrix[i][l]
+                l += 1
+                r -= 1
+        
+    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
+        """ 240.搜索二维矩阵II """
+        """
+        思路:
+            初始在右上角, 当 val < target, 此时在行最右边嘛 那这行都放弃, 向下走
+                        当 val > target, 此时在列最上边嘛 那这列都放弃, 向左走
+            ...
+            [注意: 上面'放弃', 是放弃的整行/列, 放弃了, 就不要再想了]
+            此时处在矩阵任意位置, 上面的行 和 右边的列, 都是已经放弃的了, 只能往左/下移动了嘛, 当val < target, 向下走
+                                                                                   当val > target, 向左走
+            end
+        """
+        m = len(matrix)
+        n = len(matrix[0])
+        rowInd = 0
+        colInd = n - 1
+        while rowInd < m and colInd >= 0:
+            val = matrix[rowInd][colInd]
+            if val == target:
+                return True
+            elif val < target:
+                rowInd += 1
+            else:
+                colInd -= 1
+        return False
+    
+    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        """ 206.反转链表 """
+        # pre = None
+        # cur = head
+        # while cur:
+        #     post = cur.next
+        #     cur.next = pre
+        #     pre = cur
+        #     cur = post
+        # return pre
+
+        ## 递归实现  PDD三面
+        pre = None
+
+        def backtrack(node):
+            nonlocal pre
+            if not node:
+                return
+            post = node.next
+            node.next = pre
+            pre = node
+            backtrack(post)
+        
+        backtrack(head)
+        return pre
+    
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> Optional[ListNode]:
+        """ 160.相交链表 """
+        curA = headA
+        curB = headB
+        while curA != curB:
+            curA = curA.next if curA else headB     # 注意if条件, 要考虑到curA/curB都能到达最后一个节点
+            curB = curB.next if curB else headA
+        return curA     # or curB
 
 if __name__ == '__main__':
     sl = Solution()
 
-    numCourses = 2
-    prerequisites = [[1,0],[0,1]]
-    print(sl.canFinish(numCourses, prerequisites))
+    matrix = [[1,2,3],[4,5,6],[7,8,9]]
+    print(sl.spiralOrder(matrix))
