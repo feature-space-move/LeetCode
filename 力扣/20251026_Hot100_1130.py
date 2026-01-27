@@ -876,6 +876,75 @@ class Solution:
             curB = curB.next if curB else headA
         return curA     # or curB
 
+    def isPalindrome(self, head: Optional[ListNode]) -> bool:
+        """ 234.回文链表 """
+        def reverse(node):
+            """ 反转链表 """
+            _pre = None
+            while node:
+                _post = node.next
+                node.next = _pre
+                _pre = node
+
+                node = _post
+            return _pre
+
+        slow = fast = head
+        while slow.next and fast.next.next:
+            slow = slow.next
+            fast = fast.next.next
+        head2 = reverse(slow.next)
+        while head and head2:
+            if head.val != head2.val:
+                return False
+            head = head.next
+            head2 = head2.next
+        return True
+
+    def hasCycle(self, head: Optional[ListNode]) -> bool:
+        """ 141.环形链表 """
+        ## 快慢指针, 个人觉得更优雅版快慢指针
+        if not head:
+            return False
+        
+        slow = fast = head
+        while fast.next and fast.next.next:
+            slow = slow.next
+            fast = fast.next.next
+            if slow == fast:
+                return True
+        return False
+
+        ## 简单, 但感觉不太优雅
+        # seen = set()
+        # cur = head
+        # while cur:
+        #     if cur in seen:
+        #         return True
+        #     seen.add(cur)
+        #     cur = cur.next
+        # return False
+
+    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        """ 142.环形链表II """
+        slow = fast = head
+        while fast:         # 2种退出情况: 1.fast为空 2.快慢指针相遇
+            slow = slow.next
+            fast = fast.next
+            if fast:
+                fast = fast.next
+            
+            if slow == fast:
+                break
+        if not fast:
+            return
+        
+        fast = head
+        while slow != fast:
+            slow = slow.next
+            fast = fast.next
+        return slow
+
 if __name__ == '__main__':
     sl = Solution()
 
