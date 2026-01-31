@@ -12,6 +12,12 @@ class TreeNode:
         self.left = left
         self.right = right
 
+class Node:
+    def __init__(self, x: int, next: 'Node' = None, random: 'Node' = None):
+        self.val = int(x)
+        self.next = next
+        self.random = random
+
 class MinStack:
     """ 155.最小栈 """
     def __init__(self):
@@ -944,6 +950,110 @@ class Solution:
             slow = slow.next
             fast = fast.next
         return slow
+    
+    def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) -> Optional[ListNode]:
+        """ 21.合并两个有序链表 """
+        ## 优化空间
+        if not (list1 and list2):
+            return list1 or list2
+        cur = head = ListNode()
+        while list1 and list2:
+            if list1.val < list2.val:
+                cur.next = list1
+                list1 = list1.next
+            else:
+                cur.next = list2
+                list2 = list2.next
+            cur = cur.next
+        cur.next = list1 or list2
+        return head.next
+        
+        # if not (list1 and list2):
+        #     return list1 or list2
+        # cur = head = ListNode()
+        # while list1 and list2:
+        #     if list1.val < list2.val:
+        #         cur.next = ListNode(list1.val)
+        #         list1 = list1.next
+        #     else:
+        #         cur.next = ListNode(list2.val)
+        #         list2 = list2.next
+        #     cur = cur.next
+        # cur.next = list1 or list2
+        # return head.next
+
+    def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
+        """ 2.两数之和 """
+        mt10 = False        # more than 10
+        cur = head = ListNode()
+        while l1 or l2:
+            _sum = 0        # 当前位置的和
+            if l1:
+                _sum += l1.val
+                l1 = l1.next
+            if l2:
+                _sum += l2.val
+                l2 = l2.next
+            if mt10:
+                _sum += 1
+            cur.next = ListNode(_sum % 10)
+            cur = cur.next
+            mt10 = _sum >= 10       # 若当前节点的和超过10, 留到下一位处理
+        if mt10:
+            cur.next = ListNode(1)
+        return head.next
+        
+    def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
+        """ 19.删除链表的倒数第N个节点 """
+        ## 一趟扫描
+        dummyHead = ListNode()
+        dummyHead.next = head
+
+        start = end = dummyHead
+        for _ in range(n):      # start与end距离为n
+            end = end.next
+        
+        prev = dummyHead
+        while end:              # end走到末尾, 则start指向倒数第n个. 有可能end已None
+            prev = start
+            start = start.next
+            end = end.next
+        prev.next = start.next
+        return dummyHead.next
+    
+    def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        """ 24.两两交换链表中的节点 """
+        dummyHead = ListNode()
+        dummyHead.next = head
+
+        prev = dummyHead
+        cur = head
+        while cur and cur.next:
+            first, second = cur, cur.next
+            prev.next = second
+            first.next = second.next
+            second.next = first
+            
+            prev = first
+            cur = first.next
+        return dummyHead.next
+    
+    def copyRandomList(self, head: 'Optional[Node]') -> 'Optional[Node]':
+        """ 138.随机链表的复制 """
+        ## 哈希
+        # 复制节点
+        old2new = {}
+        cur = head
+        while cur:
+            old2new[cur] = Node(cur.val)
+            cur = cur.next
+        # 复制指向
+        cur = head
+        while cur:
+            old2new[cur].next = old2new.get(cur.next, None)
+            old2new[cur].random = old2new.get(cur.random, None)
+            cur = cur.next
+        return old2new.get(head, None)
 
 if __name__ == '__main__':
     sl = Solution()
