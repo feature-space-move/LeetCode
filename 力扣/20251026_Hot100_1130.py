@@ -41,6 +41,26 @@ class MinStack:
     def getMin(self) -> int:
         return self.minVal[-1]
 
+class LRUCache:
+    """ 146.LRU缓存 """
+    def __init__(self, capacity: int):
+        from collections import OrderedDict
+
+        self.cache = OrderedDict()
+        self.capacity = capacity
+
+    def get(self, key: int) -> int:
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        return self.cache.get(key, -1)
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        self.cache[key] = value
+        if len(self.cache) > self.capacity:
+            _ = self.cache.popitem(last=False)
+
 class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:
         """ 1.两数之和 """
@@ -1054,6 +1074,125 @@ class Solution:
             old2new[cur].random = old2new.get(cur.random, None)
             cur = cur.next
         return old2new.get(head, None)
+
+    def sortList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        """ 148.排序链表 """
+        def mysplit(head, step):
+            for _ in range(step - 1):
+                if not head:
+                    return
+                head = head.next
+            
+            if not head:
+                return
+            else:
+                res = head.next
+                head.next = None
+                return res
+        
+        def mymerge(h1, h2):
+            cur = dummyHead = ListNode()
+            while h1 and h2:
+                if h1.val < h2.val:
+                    cur.next = h1
+                    h1 = h1.next
+                else:
+                    cur.next = h2
+                    h2 = h2.next
+                cur = cur.next
+            cur.next = h1 or h2
+            
+            return dummyHead.next
+
+        if not (head and head.next):
+            return head
+        
+        n = 0
+        cur = head
+        while cur:
+            n += 1
+            cur = cur.next
+        
+        dummyHead = ListNode(next=head)
+        step = 1
+        while step < n:
+            prev = dummyHead
+            cur = prev.next
+            while cur:
+                left = cur
+                right = mysplit(left, step)
+                cur = mysplit(right, step)
+                prev.next = mymerge(left, right)
+                while prev.next:
+                    prev = prev.next
+            step *= 2
+        return dummyHead.next
+
+    def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        """ 94.二叉树的中序遍历 """
+        ## 递归
+        # res = []
+
+        # def backtrack(node):
+        #     if not node:
+        #         return
+        #     backtrack(node.left)
+        #     res.append(node.val)
+        #     backtrack(node.right)
+        
+        # backtrack(root)
+        # return res
+        
+        ## 迭代
+        res = []
+
+        stack = []
+        cur = root
+        while cur or stack:
+            if cur:
+                stack.append(cur)
+                cur = cur.left
+            else:
+                node = stack.pop()
+                res.append(node.val)
+                cur = node.right
+        return res
+    
+    def maxDepth(self, root: Optional[TreeNode]) -> int:
+        """ 104.二叉树的最大深度 """
+        ## 递归
+        # res = 0
+
+        # def backtrack(node, depth):
+        #     nonlocal res
+        #     if not node:
+        #         return
+        #     if depth > res:
+        #         res = depth
+        #     backtrack(node.left, depth + 1)
+        #     backtrack(node.right, depth + 1)
+        
+        # backtrack(root, 1)
+        # return res
+        
+        ## 迭代
+        if not root:
+            return 0
+        
+        res = []
+        queue = [root]
+        while queue:
+            num_level = len(queue)
+            res_level = []
+            for _ in range(num_level):
+                node = queue.pop(0)
+                res_level.append(node.val)
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+            res.append(res_level[:])
+        return len(res)
 
 if __name__ == '__main__':
     sl = Solution()
