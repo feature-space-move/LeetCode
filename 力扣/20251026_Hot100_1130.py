@@ -1194,6 +1194,85 @@ class Solution:
             res.append(res_level[:])
         return len(res)
 
+    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        """ 226.翻转二叉树 """
+        ## 递归
+        # def backtrack(node):
+        #     if not node:
+        #         return
+        #     node.left, node.right = node.right, node.left
+        #     backtrack(node.left)
+        #     backtrack(node.right)
+        
+        # backtrack(root)
+        # return root
+
+        ## 迭代
+        if not root:
+            return
+        
+        stack = [root]
+        while stack:
+            node = stack.pop(0)
+            node.left, node.right = node.right, node.left
+            if node.left:
+                stack.append(node.left)
+            if node.right:
+                stack.append(node.right)
+        return root
+    
+    def isSymmetric(self, root: Optional[TreeNode]) -> bool:
+        """ 101.对称二叉树 """
+        ## 递归 后序
+        # def backtrack(left, right):
+        #     if not (left or right):
+        #         return True
+        #     elif not (left and right):
+        #         return False
+        #     elif left.val != right.val:
+        #         return False
+            
+        #     res1 = backtrack(left.left, right.right)
+        #     res2 = backtrack(left.right, right.left)
+        #     return res1 and res2
+
+        # return backtrack(root.left, root.right)
+
+        ## 迭代
+        stack = [[root.left, root.right]]
+        while stack:
+            left, right = stack.pop()
+            if not (left or right):
+                continue
+            elif not (left and right):
+                return False
+            elif left.val != right.val:
+                return False
+            
+            stack.append([left.left, right.right])
+            stack.append([left.right, right.left])
+        return True
+    
+    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+        """ 543.二叉树的直径 \n
+            不就是求 根节点深度/二叉树高度 嘛   \n
+            不是, 非常不是!!! 确实会用到 根节点深度/二叉树高度 --> 任意两个节点 的最长路径 """
+        ## 递归
+        res = 0
+
+        def backtrack(node):
+            """ 以node为根节点的树的高度 """
+            nonlocal res
+            if not node:
+                return 0
+            l = backtrack(node.left)
+            r = backtrack(node.right)
+            res = max(res, l + r)
+            return max(l, r) + 1
+
+        backtrack(root)
+        return res
+
 if __name__ == '__main__':
     sl = Solution()
 
