@@ -1272,6 +1272,87 @@ class Solution:
 
         backtrack(root)
         return res
+    
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        """ 102.二叉树的层序遍历 """
+        if not root:
+            return []
+        
+        res = []
+        queue = [root]
+        while queue:
+            num_level = len(queue)
+            res_level = []
+            for _ in range(num_level):
+                node = queue.pop(0)
+                res_level.append(node.val)
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+            res.append(res_level[:])
+        return res
+    
+    def sortedArrayToBST(self, nums: List[int]) -> Optional[TreeNode]:
+        """ 108.将有序数组转化为二叉搜索树 """
+        def backtrack(nums):
+            if len(nums) == 0:
+                return
+            
+            l, r = 0, len(nums) - 1
+            m = (l + r) // 2
+            root = TreeNode(nums[m])
+            root.left = backtrack(nums[l:m])
+            root.right = backtrack(nums[m + 1:])
+            return root
+        
+        return backtrack(nums)
+    
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        """ 98.验证二叉搜索树 """
+        ## 二叉搜索树 !!! 中序遍历 严格递增 !!!
+        # 递归 中序
+        curVal = float('-inf')
+
+        def backtrack(node):
+            nonlocal curVal
+            if not node:
+                return True
+            
+            leftRes = backtrack(node.left)
+            if curVal < node.val:
+                curVal = node.val
+            else:
+                return False
+            rightRes = backtrack(node.right)
+            return leftRes and rightRes
+        
+        return backtrack(root)
+    
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        """ 207.课程表 \n
+            面试遇到过 """
+        from collections import defaultdict
+
+        res = 0
+        i2indegree = [0] * numCourses
+        pre2i = defaultdict(set)
+        
+        # 初始化
+        for i, pre in prerequisites:
+            i2indegree[i] += 1
+            pre2i[pre].add(i)
+        
+        queue = [i for i, indegree in enumerate(i2indegree) if indegree == 0]
+        while queue:
+            i = queue.pop(0)
+            for ind in pre2i[i]:
+                i2indegree[ind] = max(0, i2indegree[ind] - 1)
+                if i2indegree[ind] == 0:
+                    queue.append(ind)
+            res += 1
+        return res == numCourses
+            
 
 if __name__ == '__main__':
     sl = Solution()
