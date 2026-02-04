@@ -1332,27 +1332,79 @@ class Solution:
     def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
         """ 207.课程表 \n
             面试遇到过 """
+        # from collections import defaultdict
+
+        # res = 0
+        # i2indegree = [0] * numCourses
+        # pre2i = defaultdict(set)
+        
+        # # 初始化
+        # for i, pre in prerequisites:
+        #     i2indegree[i] += 1
+        #     pre2i[pre].add(i)
+        
+        # queue = [i for i, indegree in enumerate(i2indegree) if indegree == 0]
+        # while queue:
+        #     i = queue.pop(0)
+        #     for ind in pre2i[i]:
+        #         i2indegree[ind] = max(0, i2indegree[ind] - 1)
+        #         if i2indegree[ind] == 0:
+        #             queue.append(ind)
+        #     res += 1
+        # return res == numCourses
+
+        ## Again
         from collections import defaultdict
 
         res = 0
         i2indegree = [0] * numCourses
         pre2i = defaultdict(set)
-        
+
         # 初始化
-        for i, pre in prerequisites:
-            i2indegree[i] += 1
-            pre2i[pre].add(i)
+        for ind, pre in prerequisites:
+            i2indegree[ind] += 1
+            pre2i[pre].add(ind)
         
         queue = [i for i, indegree in enumerate(i2indegree) if indegree == 0]
         while queue:
-            i = queue.pop(0)
-            for ind in pre2i[i]:
-                i2indegree[ind] = max(0, i2indegree[ind] - 1)
-                if i2indegree[ind] == 0:
-                    queue.append(ind)
+            ind = queue.pop(0)
+            for i in pre2i[ind]:
+                i2indegree[i] = max(0, i2indegree[i] - 1)
+                if i2indegree[i] == 0:
+                    queue.append(i)
             res += 1
         return res == numCourses
-            
+    
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        """ 230.二叉搜索树中第k小的元素 """
+        ## 二叉搜索树-->中序遍历严格递增
+        ## 递归
+        # res = []
+
+        # def backtrack(node):
+        #     if not node:
+        #         return
+        #     backtrack(node.left)
+        #     res.append(node.val)
+        #     backtrack(node.right)
+        
+        # backtrack(root)
+        # return res[k - 1]
+
+        ## 迭代 中序
+        res = []
+
+        cur = root
+        stack = []
+        while cur or stack:
+            if cur:
+                stack.append(cur)
+                cur = cur.left
+            else:
+                node = stack.pop()
+                res.append(node.val)
+                cur = node.right
+        return res[k - 1]
 
 if __name__ == '__main__':
     sl = Solution()
