@@ -700,6 +700,21 @@ class Solution:
         e_vec = a_vec - c_vec
         return np.linalg.norm(e_vec)    # 默认L2范数, 即向量模长
 
+    def maxProduct(self, nums: List[int]) -> int:
+        """ 152.乘积最大子数组 \
+            字节国际支付 """
+        n = len(nums)
+        dp = [[0, 0] for _ in range(n)]     # dp[i] = [当前累乘最小值, 当前累乘最大值]
+        dp[0] = [nums[0], nums[0]]
+        for i in range(1, n):
+            if nums[i] > 0:
+                dp[i][0] = min(nums[i], nums[i] * dp[i - 1][0])
+                dp[i][1] = max(nums[i], nums[i] * dp[i - 1][1])
+            else:
+                dp[i][0] = min(nums[i], nums[i] * dp[i - 1][1])
+                dp[i][1] = max(nums[i], nums[i] * dp[i - 1][0])
+        return max(ls[1] for ls in dp)
+
 if __name__ == '__main__':
     sl = Solution()
     

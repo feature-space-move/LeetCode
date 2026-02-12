@@ -1406,6 +1406,32 @@ class Solution:
                 cur = node.right
         return res[k - 1]
 
+    def flatten(self, root: Optional[TreeNode]) -> None:
+        """
+        114.二叉树展开为链表 \n
+        Do not return anything, modify root in-place instead.
+        """
+        pre = dummyHead = TreeNode()
+
+        def backtrack(node):
+            if not node:
+                return
+            
+            nonlocal pre
+            left = node.left
+            right = node.right
+
+            pre.right = node
+            pre = node
+            node.left = None
+
+            backtrack(left)
+            backtrack(right)
+        
+        backtrack(root)
+        return dummyHead.right
+            
+
 if __name__ == '__main__':
     sl = Solution()
 
